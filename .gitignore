@@ -10,6 +10,7 @@ override.tf.json
 *_override.tf.json
 .terraformrc
 terraform.rc
+**/*.auto.tfvars
 
 # Sensitive files
 *.pem

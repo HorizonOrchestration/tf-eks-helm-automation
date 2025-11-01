@@ -126,16 +126,15 @@ resource "aws_iam_role_policy_attachment" "eks_node_attachments" {
 # EKS Cluster Configuration
 
 resource "aws_eks_cluster" "cluster" {
+  count                     = var.build_cluster_resources ? 1 : 0
   name                      = "eks-cluster-${var.environment}"
   role_arn                  = aws_iam_role.eks_service_role.arn
-  enabled_cluster_log_types = var.control_plane_log_types
+  enabled_cluster_log_types = var.enable_cloudwatch_logging ? var.control_plane_log_types : null
   version                   = var.kubernetes_version
 
   vpc_config {
-    public_access_cidrs = [
-      var.allowed_public_ingress_ip
-    ]
-    subnet_ids              = aws_subnet.eks_private[*].id
+    public_access_cidrs     = var.allowed_public_ingress_cidrs
+    subnet_ids              = var.use_private_cidrs ? aws_subnet.eks_private[*].id : aws_subnet.eks_public[*].id
     endpoint_private_access = true
   }
 
@@ -165,7 +164,8 @@ resource "aws_eks_cluster" "cluster" {
 }
 
 resource "aws_eks_access_policy_association" "admin_user_access" {
-  cluster_name  = aws_eks_cluster.cluster.name
+  count         = var.build_cluster_resources ? 1 : 0
+  cluster_name  = aws_eks_cluster.cluster[0].name
   principal_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/${var.admin_access_username}"
   policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
 
@@ -175,10 +175,11 @@ resource "aws_eks_access_policy_association" "admin_user_access" {
 }
 
 resource "aws_eks_node_group" "eks_nodes" {
-  cluster_name    = aws_eks_cluster.cluster.name
+  count           = var.build_cluster_resources ? 1 : 0
+  cluster_name    = aws_eks_cluster.cluster[0].name
   node_group_name = "${var.environment}-eks-nodes"
   node_role_arn   = aws_iam_role.eks_node_role.arn
-  subnet_ids      = aws_subnet.eks_private[*].id
+  subnet_ids      = var.use_private_cidrs ? [aws_subnet.eks_private[var.node_group_pinned_subnet_index].id] : [aws_subnet.eks_public[var.node_group_pinned_subnet_index].id] # pinned subnet 
   capacity_type   = var.eks_capacity_type
   labels          = var.eks_labels
   instance_types  = var.node_group_instance_types
@@ -217,10 +218,10 @@ output "eks_service_role_arn" {
 
 output "eks_cluster_name" {
   description = "Name of the EKS cluster"
-  value       = aws_eks_cluster.cluster.name
+  value       = var.build_cluster_resources ? aws_eks_cluster.cluster[0].name : "NaN"
 }
 
 output "eks_cluster_endpoint" {
   description = "Endpoint URL of the EKS cluster"
-  value       = aws_eks_cluster.cluster.endpoint
+  value       = var.build_cluster_resources ? aws_eks_cluster.cluster[0].endpoint : "NaN"
 }
