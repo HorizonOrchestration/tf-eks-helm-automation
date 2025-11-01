@@ -9,6 +9,18 @@ variable "environment" {
   }
 }
 
+variable "enable_cloudwatch_logging" {
+  description = "Enable CloudWatch logging for deployed resources."
+  type        = bool
+  default     = true
+}
+
+variable "microservice_names" {
+  description = "List of microservice names to deploy."
+  type        = list(string)
+  default     = []
+}
+
 # Variables for EKS Network Resources
 
 variable "vpc_cidr" {
@@ -47,13 +59,55 @@ variable "azs" {
   ]
 }
 
-variable "allowed_public_ingress_ip" {
-  description = "The public IP allowed to access the public subnet on port 443."
-  type        = string
-  default     = "198.51.100.10/32" # Example IP, replace as needed
+variable "allowed_public_ingress_cidrs" {
+  description = "The public CIDRs allowed to access the public subnet on port 443."
+  type        = list(string)
+  default     = []
+}
+
+variable "use_private_cidrs" {
+  description = "Whether to build nodes in private subnets."
+  type        = bool
+  default     = true
+}
+
+variable "additional_public_egress_rules" {
+  description = "Additional egress rules to add to the public NACLs."
+  type = list(object({
+    name        = string
+    rule_number = number
+    egress      = bool
+    protocol    = string
+    rule_action = string
+    cidr_block  = string
+    from_port   = number
+    to_port     = number
+  }))
+  default = []
+}
+
+variable "additional_private_egress_rules" {
+  description = "Additional egress rules to add to the private NACLs."
+  type = list(object({
+    name        = string
+    rule_number = number
+    egress      = bool
+    protocol    = string
+    rule_action = string
+    cidr_block  = string
+    from_port   = number
+    to_port     = number
+  }))
+  default = []
 }
 
 # Variables for EKS Cluster
+
+variable "build_cluster_resources" {
+  description = "Whether to build cluster resources."
+  type        = bool
+  default     = true
+}
 
 variable "control_plane_log_types" {
   description = "List of control plane log types to enable for the EKS cluster. Can include: api, audit, authenticator, controllerManager, scheduler."
@@ -84,6 +138,7 @@ variable "admin_access_username" {
   type        = string
   default     = "ckatraining"
 }
+
 # Variables for EKS Node Group
 
 variable "node_group_desired_size" {
@@ -136,4 +191,40 @@ variable "node_group_ami_type" {
   description = "AMI type for the EKS node group."
   type        = string
   default     = "AL2023_ARM_64_STANDARD"
+}
+
+variable "node_group_pinned_subnet_index" {
+  description = "Index of the subnet to pin the EKS node group to." # Pinning to simplify EBS config volumes, which exist within a specific AZ.
+  type        = number
+  default     = 2
+}
+
+# Variables for Storage
+
+variable "efs_throughput_mode" {
+  description = "Throughput mode for the EFS file system."
+  type        = string
+  default     = "bursting"
+}
+
+variable "efs_ia_policy" {
+  description = "Infrequent Access (IA) policy for the EFS file system."
+  type        = string
+  default     = "AFTER_7_DAYS"
+
+  validation {
+    condition     = contains(["AFTER_1_DAY", "AFTER_7_DAYS", "AFTER_14_DAYS", "AFTER_30_DAYS", "AFTER_60_DAYS", "AFTER_90_DAYS", "AFTER_180_DAYS", "AFTER_270_DAYS", "AFTER_365_DAYS"], var.efs_ia_policy)
+    error_message = "efs_ia_policy must be one of: AFTER_1_DAY, AFTER_7_DAYS, AFTER_14_DAYS, AFTER_30_DAYS, AFTER_60_DAYS, AFTER_90_DAYS, AFTER_180_DAYS, AFTER_270_DAYS, AFTER_365_DAYS."
+  }
+}
+
+variable "efs_archive_policy" {
+  description = "Archive policy for the EFS file system."
+  type        = string
+  default     = "AFTER_90_DAYS"
+
+  validation {
+    condition     = contains(["AFTER_7_DAYS", "AFTER_14_DAYS", "AFTER_30_DAYS", "AFTER_60_DAYS", "AFTER_90_DAYS", "AFTER_180_DAYS", "AFTER_270_DAYS", "AFTER_365_DAYS"], var.efs_archive_policy)
+    error_message = "efs_archive_policy must be one of: AFTER_7_DAYS, AFTER_14_DAYS, AFTER_30_DAYS, AFTER_60_DAYS, AFTER_90_DAYS, AFTER_180_DAYS, AFTER_270_DAYS, AFTER_365_DAYS."
+  }
 }
