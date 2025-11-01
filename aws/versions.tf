@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/aws"
       version = ">= 6.0"
     }
+    tls = {
+      source  = "hashicorp/tls"
+      version = ">= 4.0"
+    }
   }
 
   backend "s3" {
@@ -19,12 +23,21 @@ terraform {
 
 provider "aws" {
   region = "eu-west-2"
+
   default_tags {
     tags = {
       environment = var.environment
       project     = "tf-eks-helm-automation"
       owner       = "Jaluri@outlook.com"
     }
+  }
+
+  ignore_tags {
+    key_prefixes = [
+      "CSIVolumeName",
+      "kubernetes.io/created",
+      "ebs.csi.aws.com"
+    ]
   }
 }
 
