@@ -35,7 +35,7 @@ resource "aws_kms_key" "eks_secrets" {
   policy              = data.aws_iam_policy_document.eks_secrets_kms.json
 
   tags = {
-    Name = "${var.environment}-eks-secrets-kms"
+    Name = "${local.environment}-eks-secrets-kms"
   }
 }
 
@@ -63,12 +63,12 @@ data "aws_iam_policy_document" "eks_assume_role_policy" {
 }
 
 resource "aws_iam_role" "eks_service_role" {
-  name               = "${var.environment}-eks-service-role"
+  name               = "${local.environment}-eks-service-role"
   description        = "IAM role for EKS cluster service - Managed by Terraform"
   assume_role_policy = data.aws_iam_policy_document.eks_assume_role_policy.json
 
   tags = {
-    Name = "${var.environment}-eks-service-role"
+    Name = "${local.environment}-eks-service-role"
   }
 }
 
@@ -105,12 +105,12 @@ data "aws_iam_policy_document" "eks_node_assume_role_policy" {
 }
 
 resource "aws_iam_role" "eks_node_role" {
-  name               = "${var.environment}-eks-node-role"
+  name               = "${local.environment}-eks-node-role"
   description        = "IAM role for EKS worker nodes - Managed by Terraform"
   assume_role_policy = data.aws_iam_policy_document.eks_node_assume_role_policy.json
 
   tags = {
-    Name = "${var.environment}-eks-node-role"
+    Name = "${local.environment}-eks-node-role"
   }
 }
 
@@ -127,7 +127,7 @@ resource "aws_iam_role_policy_attachment" "eks_node_attachments" {
 
 resource "aws_eks_cluster" "cluster" {
   count                     = var.build_cluster_resources ? 1 : 0
-  name                      = "eks-cluster-${var.environment}"
+  name                      = "eks-cluster-${local.environment}"
   role_arn                  = aws_iam_role.eks_service_role.arn
   enabled_cluster_log_types = var.enable_cloudwatch_logging ? var.control_plane_log_types : null
   version                   = var.kubernetes_version
@@ -177,7 +177,7 @@ resource "aws_eks_access_policy_association" "admin_user_access" {
 resource "aws_eks_node_group" "eks_nodes" {
   count           = var.build_cluster_resources ? 1 : 0
   cluster_name    = aws_eks_cluster.cluster[0].name
-  node_group_name = "${var.environment}-eks-nodes"
+  node_group_name = "${local.environment}-eks-nodes"
   node_role_arn   = aws_iam_role.eks_node_role.arn
   subnet_ids      = var.use_private_cidrs ? [aws_subnet.eks_private[var.node_group_pinned_subnet_index].id] : [aws_subnet.eks_public[var.node_group_pinned_subnet_index].id] # pinned subnet 
   capacity_type   = var.eks_capacity_type
@@ -205,7 +205,7 @@ resource "aws_eks_node_group" "eks_nodes" {
   }
 
   tags = {
-    Name = "${var.environment}-eks-nodes"
+    Name = "${local.environment}-eks-nodes"
   }
 }
 

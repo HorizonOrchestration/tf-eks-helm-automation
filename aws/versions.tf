@@ -26,7 +26,7 @@ provider "aws" {
 
   default_tags {
     tags = {
-      environment = var.environment
+      environment = local.environment
       project     = "tf-eks-helm-automation"
       owner       = "Jaluri@outlook.com"
     }
@@ -43,3 +43,7 @@ provider "aws" {
 
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
+
+locals {
+  environment = terraform.workspace
+}
