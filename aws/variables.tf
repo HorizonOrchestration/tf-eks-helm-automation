@@ -217,3 +217,9 @@ variable "efs_archive_policy" {
     error_message = "efs_archive_policy must be one of: AFTER_7_DAYS, AFTER_14_DAYS, AFTER_30_DAYS, AFTER_60_DAYS, AFTER_90_DAYS, AFTER_180_DAYS, AFTER_270_DAYS, AFTER_365_DAYS."
   }
 }
+
+variable "enable_efs_cmk_encryption" {
+  description = "Enable customer managed KMS encryption for EFS."
+  type        = bool
+  default     = true
+}
