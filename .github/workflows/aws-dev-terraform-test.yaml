@@ -19,8 +19,8 @@ defaults:
 
 jobs:
   aws-terraform-test:
-    name: 'Plan and Test Terraform - aws - dev'
+    name: 'Plan and Test Terraform - aws - staging'
     uses: ./.github/workflows/terraform.yaml
     with:
-      environment: dev
+      environment: staging
       aws_region: eu-west-2
