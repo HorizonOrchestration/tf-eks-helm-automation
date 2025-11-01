@@ -1,4 +1,3 @@
-environment             = "dev"
 eks_capacity_type       = "SPOT"
 node_group_desired_size = 2
 node_group_max_size     = 2

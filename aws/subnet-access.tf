@@ -98,7 +98,7 @@ resource "aws_network_acl" "eks_public" {
   vpc_id     = aws_vpc.eks.id
   subnet_ids = aws_subnet.eks_public[*].id
   tags = {
-    Name = "${var.environment}-eks-public-nacl"
+    Name = "${local.environment}-eks-public-nacl"
   }
 }
 
@@ -205,7 +205,7 @@ resource "aws_network_acl" "eks_private" {
   subnet_ids = aws_subnet.eks_private[*].id
 
   tags = {
-    Name = "${var.environment}-eks-private-nacl"
+    Name = "${local.environment}-eks-private-nacl"
   }
 }
 

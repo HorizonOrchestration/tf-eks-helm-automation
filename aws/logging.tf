@@ -39,7 +39,7 @@ resource "aws_kms_key" "cloudwatch_logs" {
   policy = data.aws_iam_policy_document.cloudwatch_logs_kms.json
 
   tags = {
-    Name = "${var.environment}-cloudwatch-logs-kms"
+    Name = "${local.environment}-cloudwatch-logs-kms"
   }
 }
 
@@ -58,12 +58,12 @@ data "aws_iam_policy_document" "vpc_flow_logs_assume_role" {
 
 resource "aws_iam_role" "vpc_flow_logs" {
   count              = var.enable_cloudwatch_logging ? 1 : 0
-  name               = "${var.environment}-eks-vpc-flow-logs-role"
+  name               = "${local.environment}-eks-vpc-flow-logs-role"
   description        = "IAM role for VPC Flow Logs to publish to CloudWatch Logs - Managed by Terraform"
   assume_role_policy = data.aws_iam_policy_document.vpc_flow_logs_assume_role.json
 
   tags = {
-    Name = "${var.environment}-eks-vpc-flow-logs-role"
+    Name = "${local.environment}-eks-vpc-flow-logs-role"
   }
 }
 
@@ -85,19 +85,19 @@ data "aws_iam_policy_document" "vpc_flow_logs_policy" {
 
 resource "aws_iam_role_policy" "vpc_flow_logs" {
   count  = var.enable_cloudwatch_logging ? 1 : 0
-  name   = "${var.environment}-eks-vpc-flow-logs-policy"
+  name   = "${local.environment}-eks-vpc-flow-logs-policy"
   role   = aws_iam_role.vpc_flow_logs[0].id
   policy = data.aws_iam_policy_document.vpc_flow_logs_policy.json
 }
 
 resource "aws_cloudwatch_log_group" "eks_vpc_flow_logs" {
   count             = var.enable_cloudwatch_logging ? 1 : 0
-  name              = "/aws/vpc/${var.environment}-eks-flow-logs"
+  name              = "/aws/vpc/${local.environment}-eks-flow-logs"
   retention_in_days = 14
   kms_key_id        = aws_kms_key.cloudwatch_logs[0].arn
 
   tags = {
-    Name = "${var.environment}-eks-vpc-flow-logs"
+    Name = "${local.environment}-eks-vpc-flow-logs"
   }
 }
 
@@ -110,7 +110,7 @@ resource "aws_flow_log" "eks_vpc" {
   traffic_type         = "ALL"
 
   tags = {
-    Name = "${var.environment}-eks-vpc-flow-logs"
+    Name = "${local.environment}-eks-vpc-flow-logs"
   }
 }
 
@@ -118,11 +118,11 @@ resource "aws_flow_log" "eks_vpc" {
 
 resource "aws_cloudwatch_log_group" "eks_control_plane" {
   count             = var.enable_cloudwatch_logging ? 1 : 0
-  name              = "/aws/eks/eks-cluster-${var.environment}/cluster"
+  name              = "/aws/eks/eks-cluster-${local.environment}/cluster"
   retention_in_days = 14
   kms_key_id        = aws_kms_key.cloudwatch_logs[0].arn
 
   tags = {
-    Name = "${var.environment}-eks-control-plane-logs"
+    Name = "${local.environment}-eks-control-plane-logs"
   }
 }

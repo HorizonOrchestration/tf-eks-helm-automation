@@ -10,14 +10,14 @@ resource "aws_ebs_volume" "eks_ebs" {
   encrypted         = false
 
   tags = {
-    Name = "eks-${each.value}-config-${var.environment}"
+    Name = "eks-${each.value}-config-${local.environment}"
   }
 }
 
 # EFS setup for EKS pods
 
 resource "aws_efs_file_system" "eks_efs" {
-  creation_token   = "eks-kustomize-efs-${var.environment}"
+  creation_token   = "eks-kustomize-efs-${local.environment}"
   performance_mode = "generalPurpose"
   throughput_mode  = var.efs_throughput_mode
   encrypted        = true
@@ -28,12 +28,12 @@ resource "aws_efs_file_system" "eks_efs" {
   }
 
   tags = {
-    Name = "eks-efs-${var.environment}"
+    Name = "eks-efs-${local.environment}"
   }
 }
 
 resource "aws_security_group" "efs" {
-  name        = "eks-efs-sg-${var.environment}"
+  name        = "eks-efs-sg-${local.environment}"
   description = "Security group to allow EKS nodes to mount EFS - Managed by Terraform."
   vpc_id      = aws_vpc.eks.id
 
@@ -48,7 +48,7 @@ resource "aws_security_group" "efs" {
   }
 
   tags = {
-    Name = "eks-efs-sg-${var.environment}"
+    Name = "eks-efs-sg-${local.environment}"
   }
 }
 

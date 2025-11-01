@@ -6,7 +6,7 @@ resource "aws_vpc" "eks" {
   enable_dns_hostnames = true
 
   tags = {
-    Name = "${var.environment}-eks-vpc"
+    Name = "${local.environment}-eks-vpc"
   }
 }
 
@@ -18,7 +18,7 @@ resource "aws_default_security_group" "eks_default_block_all" {
   egress  = []
 
   tags = {
-    Name = "${var.environment}-eks-default-block-all"
+    Name = "${local.environment}-eks-default-block-all"
   }
 }
 
@@ -32,10 +32,10 @@ resource "aws_subnet" "eks_public" {
   availability_zone       = element(var.azs, count.index)
 
   tags = {
-    Name                                                   = "${var.environment}-eks-public-${element(var.azs, count.index)}"
-    Type                                                   = "public"
-    "kubernetes.io/role/elb"                               = "1"
-    "kubernetes.io/cluster/eks-cluster-${var.environment}" = "shared"
+    Name                                                     = "${local.environment}-eks-public-${element(var.azs, count.index)}"
+    Type                                                     = "public"
+    "kubernetes.io/role/elb"                                 = "1"
+    "kubernetes.io/cluster/eks-cluster-${local.environment}" = "shared"
   }
 }
 
@@ -43,7 +43,7 @@ resource "aws_internet_gateway" "eks" {
   vpc_id = aws_vpc.eks.id
 
   tags = {
-    Name = "${var.environment}-eks-igw"
+    Name = "${local.environment}-eks-igw"
   }
 }
 
@@ -51,7 +51,7 @@ resource "aws_route_table" "eks_public" {
   vpc_id = aws_vpc.eks.id
 
   tags = {
-    Name = "${var.environment}-eks-public-rt"
+    Name = "${local.environment}-eks-public-rt"
     Type = "public"
   }
 }
@@ -77,10 +77,10 @@ resource "aws_subnet" "eks_private" {
   availability_zone = element(var.azs, count.index)
 
   tags = {
-    Name                                                   = "${var.environment}-eks-private-${element(var.azs, count.index)}"
-    Type                                                   = "private"
-    "kubernetes.io/role/internal-elb"                      = "1"
-    "kubernetes.io/cluster/eks-cluster-${var.environment}" = "shared"
+    Name                                                     = "${local.environment}-eks-private-${element(var.azs, count.index)}"
+    Type                                                     = "private"
+    "kubernetes.io/role/internal-elb"                        = "1"
+    "kubernetes.io/cluster/eks-cluster-${local.environment}" = "shared"
   }
 }
 
@@ -90,13 +90,13 @@ resource "aws_nat_gateway" "eks" {
   subnet_id     = aws_subnet.eks_public[0].id
 
   tags = {
-    Name = "${var.environment}-eks-nat"
+    Name = "${local.environment}-eks-nat"
   }
 }
 
 resource "aws_eip" "eks_nat" {
   tags = {
-    Name = "${var.environment}-eks-nat-eip"
+    Name = "${local.environment}-eks-nat-eip"
   }
 }
 
@@ -104,7 +104,7 @@ resource "aws_route_table" "eks_private" {
   vpc_id = aws_vpc.eks.id
 
   tags = {
-    Name = "${var.environment}-eks-private-rt"
+    Name = "${local.environment}-eks-private-rt"
     Type = "private"
   }
 }
