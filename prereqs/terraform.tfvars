@@ -1,2 +1,2 @@
-github_org  = "Rivera-py" # Add info here
-github_repo = "tf-eks-helm-automation" # Add info here
+# github_org  = "GitHub-Org-Name-Here" # Add info here
+# github_repo = "repo-name-here" # Add info here
