@@ -17,10 +17,11 @@ resource "aws_ebs_volume" "eks_ebs" {
 # EFS setup for EKS pods
 
 resource "aws_efs_file_system" "eks_efs" {
-  creation_token   = "eks-kustomize-efs-${local.environment}"
+  creation_token   = "eks-efs-${local.environment}"
   performance_mode = "generalPurpose"
   throughput_mode  = var.efs_throughput_mode
   encrypted        = true
+  kms_key_id       = var.enable_efs_cmk_encryption ? aws_kms_key.customer_managed_key[0].arn : null
 
   lifecycle_policy {
     transition_to_ia      = var.efs_ia_policy
