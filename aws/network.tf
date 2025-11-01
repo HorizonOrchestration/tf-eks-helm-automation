@@ -28,14 +28,14 @@ resource "aws_subnet" "eks_public" {
   count                   = length(var.public_subnet_cidrs)
   vpc_id                  = aws_vpc.eks.id
   cidr_block              = var.public_subnet_cidrs[count.index]
-  map_public_ip_on_launch = false
+  map_public_ip_on_launch = var.use_private_cidrs ? false : true
   availability_zone       = element(var.azs, count.index)
 
   tags = {
     Name                                                   = "${var.environment}-eks-public-${element(var.azs, count.index)}"
     Type                                                   = "public"
     "kubernetes.io/role/elb"                               = "1"
-    "kubernetes.io/cluster/eks-cluster-${var.environment}" = "owned"
+    "kubernetes.io/cluster/eks-cluster-${var.environment}" = "shared"
   }
 }
 
@@ -80,11 +80,12 @@ resource "aws_subnet" "eks_private" {
     Name                                                   = "${var.environment}-eks-private-${element(var.azs, count.index)}"
     Type                                                   = "private"
     "kubernetes.io/role/internal-elb"                      = "1"
-    "kubernetes.io/cluster/eks-cluster-${var.environment}" = "owned"
+    "kubernetes.io/cluster/eks-cluster-${var.environment}" = "shared"
   }
 }
 
 resource "aws_nat_gateway" "eks" {
+  count         = var.use_private_cidrs ? 1 : 0
   allocation_id = aws_eip.eks_nat.id
   subnet_id     = aws_subnet.eks_public[0].id
 
@@ -109,9 +110,10 @@ resource "aws_route_table" "eks_private" {
 }
 
 resource "aws_route" "eks_private_nat_access" {
+  count                  = var.use_private_cidrs ? 1 : 0
   route_table_id         = aws_route_table.eks_private.id
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.eks.id
+  nat_gateway_id         = aws_nat_gateway.eks[0].id
 }
 
 resource "aws_route_table_association" "eks_private" {
