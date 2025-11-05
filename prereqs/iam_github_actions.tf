@@ -65,6 +65,24 @@ data "aws_iam_policy_document" "github_actions_state" {
   }
 }
 
+data "aws_iam_policy_document" "github_actions_helm" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "eks:DescribeCluster",
+      "eks:ListClusters"
+    ]
+    resources = ["*"]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "sts:GetCallerIdentity"
+    ]
+    resources = ["*"]
+  }
+}
+
 resource "aws_iam_policy" "github_actions_state" {
   name        = "github-actions-state-policy"
   description = "Allow PutObject/DeleteObject on S3 state bucket, and KMS Decrypt - Managed by Terraform"
@@ -78,4 +96,19 @@ resource "aws_iam_policy" "github_actions_state" {
 resource "aws_iam_role_policy_attachment" "github_actions_state_attach" {
   role       = aws_iam_role.github_actions.name
   policy_arn = aws_iam_policy.github_actions_state.arn
+}
+
+resource "aws_iam_policy" "github_actions_helm" {
+  name        = "github-actions-helm-policy"
+  description = "Allow GitHub Actions to update kubeconfig and deploy with Helm - Managed by Terraform"
+  policy      = data.aws_iam_policy_document.github_actions_helm.json
+
+  tags = {
+    Name = "github-actions-helm-policy"
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "github_actions_helm_attach" {
+  role       = aws_iam_role.github_actions.name
+  policy_arn = aws_iam_policy.github_actions_helm.arn
 }
