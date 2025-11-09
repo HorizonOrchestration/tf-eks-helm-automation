@@ -29,9 +29,9 @@ Workflows are defined in `.github/workflows/` and follow a modular, reusable pat
 - **`aws-dev-terraform-test.yaml`:**
   - **Triggers:** On push and pull request to `feature/*` branches.
   - **Flow:**
-    1. Calls reusable `terraform.yaml` workflow with parameters for stack, environment, region, IAM role, and state bucket.
-    2. Runs Terraform plan, linting, validation, and security scans.
-    3. Publishes test and scan results as workflow artifacts.
+    1. Calls reusable `terraform.yaml` workflow with parameters for stack, environment, region, IAM role, and state bucket
+    2. Runs Terraform plan, linting, validation, and security scans
+    3. Publishes test and scan results as workflow artifacts
 
 - **`terraform.yaml`:** (Reusable Workflow)
   - **Parameters:** Action, stack, environment, AWS region, IAM role, state bucket prefix.
@@ -45,6 +45,20 @@ Workflows are defined in `.github/workflows/` and follow a modular, reusable pat
     7. Run `terraform plan` (outputs JSON plan)
     8. Run TFLint and Checkov for linting and security
     9. Publish results and upload plan artifact
+
+- **`kubernetes-dev-helm-test.yaml`:**
+  - **Triggers:** On push and pull request to `feature/*` branches.
+  - **Flow:**
+    1. Lint and validate helmfile setup.
+    2. Output kubernetes planned manifests for review
+
+- **`helm.yaml`:** (Reusable Workflow)
+  - **Parameters:** Environment.
+  - **Steps:**
+    1. Checkout code
+    2. Setup Helmfile
+    3. Lint helmfile data and charts
+    4. Generate and output kubernetes manifest files for review
 
 - **Security:**
   - No hardcoded secrets; uses OIDC and IAM roles.
@@ -78,6 +92,7 @@ Follow these steps to provision and manage your EKS infrastructure:
 - **AWS CLI:** Installed and configured with a user that has sufficient IAM permissions (admin or equivalent).
 - **kubectl:** Installed for interacting with your EKS cluster.
 - **Terraform:** Installed (version >= 1.3 recommended).
+- **helmfile:** Installed for deploying helmfile.
 
 ### 1. Clone the Repository
 
@@ -136,6 +151,14 @@ aws eks update-kubeconfig --name <cluster_name>
 ```
 
 You can now interact with your cluster using `kubectl`.
+
+### 7. Deploy Controllers
+
+Deploy the controllers to your EKS cluster:
+
+```sh
+helmfile apply -f helm/helmfile-<environment>
+```
 
 ## License
 
