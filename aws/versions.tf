@@ -28,7 +28,7 @@ provider "aws" {
     tags = {
       environment = local.environment
       project     = "tf-eks-helm-automation"
-      owner       = "Jaluri@outlook.com"
+      owner       = "example@outlook.com"
     }
   }
 
