@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: controllers
+  labels:
+    name: controllers
+    purpose: cluster-controllers

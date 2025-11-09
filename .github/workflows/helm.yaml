@@ -1,0 +1,32 @@
+name: Helm
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+        description: 'The environment for the Helm execution, e.g., "dev", "staging", "prod".'
+
+jobs:
+  test:
+    name: 'Helmfile Lint and Templates - ${{ inputs.environment }}'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/helm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: mamezou-tech/setup-helmfile@v2
+        with:
+          helmfile-version: 1.1.9
+
+      - name: Lint
+        run: helmfile lint helmfile-${{ inputs.environment }}.yaml
+
+      - name: Templates
+        run: helmfile templates helmfile-${{ inputs.environment }}.yaml
