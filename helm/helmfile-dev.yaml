@@ -1,0 +1,64 @@
+repositories:
+  - name: aws-ebs-csi-driver
+    url: https://kubernetes-sigs.github.io/aws-ebs-csi-driver
+  - name: aws-efs-csi-driver
+    url: https://kubernetes-sigs.github.io/aws-efs-csi-driver
+  - name: eks
+    url: https://aws.github.io/eks-charts
+  - name: jetstack
+    url: https://charts.jetstack.io
+  - name: external-secrets
+    url: https://charts.external-secrets.io
+
+releases:
+  - name: aws-ebs-csi-driver
+    namespace: controllers
+    chart: aws-ebs-csi-driver/aws-ebs-csi-driver
+    values:
+      - controller:
+          serviceAccount:
+            annotations:
+              eks.amazonaws.com/role-arn: arn:aws:iam::012345678910:role/ebs-csi-controller-role
+          replicaCount: 1
+
+  - name: aws-efs-csi-driver
+    namespace: controllers
+    chart: aws-efs-csi-driver/aws-efs-csi-driver
+    values:
+      - controller:
+          serviceAccount:
+            annotations:
+              eks.amazonaws.com/role-arn: arn:aws:iam::012345678910:role/efs-csi-controller-role
+          replicaCount: 1
+
+  - name: alb-controller
+    namespace: controllers
+    chart: eks/aws-load-balancer-controller
+    values:
+      - clusterName: eks-cluster-dev
+        vpcId: vpc-01234abc567891011
+        replicaCount: 1
+        serviceAccount:
+          name: alb-controller-sa
+          annotations:
+            eks.amazonaws.com/role-arn: arn:aws:iam::012345678910:role/alb-controller-role
+
+  - name: eso-controller
+    namespace: controllers
+    chart: external-secrets/external-secrets
+    values:
+      - serviceAccount:
+          name: eso-controller-sa
+          annotations:
+            eks.amazonaws.com/role-arn: arn:aws:iam::012345678910:role/eso-controller-role
+
+  - name: cert-manager
+    namespace: controllers
+    chart: jetstack/cert-manager
+    values:
+      - crds:
+          enabled: true
+        serviceAccount:
+          name: cert-manager-controller-sa
+          annotations:
+            eks.amazonaws.com/role-arn: arn:aws:iam::012345678910:role/cert-manager-controller-role

@@ -1,0 +1,21 @@
+name: 'Kubernetes - Dev - Helm Test'
+on:      
+  push:
+    branches: [ "feature/*" ]
+  pull_request:
+    branches: [ "feature/*" ]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  aws-terraform-test:
+    name: 'Lint and Template Helm - kubernetes - dev'
+    uses: ./.github/workflows/helm.yaml
+    with:
+      environment: dev
