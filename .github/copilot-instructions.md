@@ -58,3 +58,6 @@ When suggesting code changes or new features, consider:
 7. **Testing**: Include unit tests and integration tests where applicable.
 8. **Performance**: Consider performance implications of changes, especially in resource-intensive operations.
 9. **Documentation**: Update README files and inline comments to reflect changes made, following documentation instructions above.
+
+## Debugging
+When prompted for help troubleshooting issues, provide short, focused responses that address the specific problem. Avoid lengthy explanations unless necessary for clarity.
