@@ -1,9 +1,15 @@
 name: 'AWS - Dev - Terraform Test'
 on:      
   push:
-    branches: [ "feature/*" ]
+    # branches: [ "feature/*" ]
+    branches-ignore:
+    - feature/helm-pipeline
+    - main
   pull_request:
-    branches: [ "feature/*" ]
+    # branches: [ "feature/*" ]
+    branches-ignore:
+    - feature/helm-pipeline
+    - main
 
 permissions:
   contents: read

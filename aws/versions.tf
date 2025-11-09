@@ -15,7 +15,7 @@ terraform {
   backend "s3" {
     encrypt      = true
     use_lockfile = true
-    bucket       = "s3-tf-eks-helm-automation-state-299858989921-eu-west-2" # Created by prereqs
+    bucket       = "s3-tf-eks-helm-automation-state-012345678910-eu-west-2" # Created by prereqs
     region       = "eu-west-2"
     key          = "aws/terraform.tfstate"
   }
