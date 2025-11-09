@@ -20,7 +20,7 @@ on:
       role:
         required: false
         type: string
-        default: 'arn:aws:iam::299858989921:role/github-actions-oidc-role'
+        default: 'arn:aws:iam::012345678910:role/github-actions-oidc-role'
         description: 'The AWS IAM role to assume for the GitHub Actions workflow.'
       state_bucket_prefix:
         required: false
