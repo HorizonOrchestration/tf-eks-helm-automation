@@ -26,7 +26,7 @@ jobs:
           helmfile-version: v1.1.9
 
       - name: Lint
-        run: helmfile lint helmfile-${{ inputs.environment }}.yaml
+        run: helmfile lint -f helmfile-${{ inputs.environment }}.yaml
 
       - name: Templates
-        run: helmfile templates helmfile-${{ inputs.environment }}.yaml
+        run: helmfile templates -f helmfile-${{ inputs.environment }}.yaml
