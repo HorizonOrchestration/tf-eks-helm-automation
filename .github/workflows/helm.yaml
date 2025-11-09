@@ -21,9 +21,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Terraform
-        uses: mamezou-tech/setup-helmfile@v2
+        uses: mamezou-tech/setup-helmfile@v2.1.0
         with:
-          helmfile-version: 1.1.9
+          helmfile-version: v1.1.9
 
       - name: Lint
         run: helmfile lint helmfile-${{ inputs.environment }}.yaml
